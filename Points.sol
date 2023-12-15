@@ -34,16 +34,11 @@ contract Points {
             score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
         } else if (IERC1271(owner).isValidSignature(hash, signature) == IERC1271.isValidSignature.selector) {
             score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
-        } else {
-            score = 0; // Failed to recover.
         }
     }
 
     function claim(IERC20 token, uint256 start, uint256 bonus, bytes calldata signature) public payable {
-        token.transfer(msg.sender, check(msg.sender, start, bonus, signature));
-        unchecked {
-            claimed[msg.sender] += bonus;
-        }
+        token.transfer(msg.sender, claimed[msg.sender] += check(msg.sender, start, bonus, signature));
     }
 }
 
