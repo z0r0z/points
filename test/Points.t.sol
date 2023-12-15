@@ -24,10 +24,6 @@ contract PointsTest is Test {
         new Points(alice, 1);
     }
 
-    function testOwner() public {
-        assertEq(points.owner(), alice);
-    }
-
     function testCheck(uint216 bonus) public {
         vm.assume(bonus < 100 ether);
         uint40 start = uint40(block.timestamp);

@@ -2,13 +2,13 @@
 pragma solidity ^0.8.19;
 
 contract Points {
-    address public immutable owner; // Signatory.
-    uint256 public immutable rate; // Issuance.
+    address immutable OWNER; // Signatory.
+    uint256 immutable RATE; // Issuance.
     mapping(address => uint256) public claimed;
 
-    constructor(address _owner, uint8 _rate) payable {
-        owner = _owner;
-        rate = _rate;
+    constructor(address owner, uint8 rate) payable {
+        OWNER = owner;
+        RATE = rate;
     }
 
     function check(address user, uint40 start, uint216 bonus, bytes calldata signature)
@@ -27,10 +27,10 @@ contract Points {
             v := byte(0, calldataload(add(signature.offset, 0x40)))
         }
         if (
-            owner == ecrecover(hash, v, r, s)
+            OWNER == ecrecover(hash, v, r, s)
                 || IERC1271.isValidSignature.selector
-                    == IERC1271(owner).isValidSignature(hash, signature)
-        ) score = (bonus + (rate * (block.timestamp - start))) - claimed[user];
+                    == IERC1271(OWNER).isValidSignature(hash, signature)
+        ) score = (bonus + (RATE * (block.timestamp - start))) - claimed[user];
     }
 
     function claim(IERC20 token, uint40 start, uint216 bonus, bytes calldata signature)
