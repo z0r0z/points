@@ -20,6 +20,10 @@ contract PointsTest is Test {
 
     // -- TESTS
 
+    function testDeploy() public {
+        new Points(alice, 1);
+    }
+
     function testOwner() public {
         assertEq(points.owner(), alice);
     }
