@@ -26,12 +26,10 @@ contract Points {
             s := calldataload(add(signature.offset, 0x20))
             v := byte(0, calldataload(add(signature.offset, 0x40)))
         }
-        // Try recovering signature from owner.
-        if (ecrecover(hash, v, r, s) == owner) {
-            score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
-        } else if (IERC1271(owner).isValidSignature(hash, signature) == IERC1271.isValidSignature.selector) {
-            score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
-        }
+        if (
+            ecrecover(hash, v, r, s) == owner
+                || IERC1271(owner).isValidSignature(hash, signature) == IERC1271.isValidSignature.selector
+        ) score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
     }
 
     function claim(IERC20 token, uint256 start, uint256 bonus, bytes calldata signature) public payable {
