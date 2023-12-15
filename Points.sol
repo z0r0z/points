@@ -16,7 +16,7 @@ contract Points {
         view
         returns (uint256 score)
     {
-        // Hash user's points start with bonus and parse owner's signature.
+        // Parse user starting points and bonus with owner's signature.
         bytes32 hash = keccak256((abi.encodePacked(user, start, bonus)));
         bytes32 r;
         bytes32 s;
@@ -25,9 +25,6 @@ contract Points {
             r := calldataload(signature.offset)
             s := calldataload(add(signature.offset, 0x20))
             v := byte(0, calldataload(add(signature.offset, 0x40)))
-            mstore(0x20, hash) // Store into scratch space for keccak256.
-            mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32")
-            hash := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
         }
         // Try recovering signature from owner.
         if (ecrecover(hash, v, r, s) == owner) {

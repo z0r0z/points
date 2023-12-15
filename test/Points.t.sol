@@ -25,16 +25,14 @@ contract PointsTest is Test {
     }
 
     function testCheck(uint256 bonus) public {
-        (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, block.timestamp, bonus))));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
         uint256 bal = points.check(bob, block.timestamp, bonus, abi.encodePacked(r, s, v));
         assertEq(bal, bonus);
     }
 
     function testClaim(uint256 bonus) public {
         vm.assume(bonus < 100 ether);
-        (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, block.timestamp, bonus))));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
         vm.prank(bob);
         points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
         assertEq(TestToken(token).balanceOf(bob), bonus);
@@ -42,23 +40,11 @@ contract PointsTest is Test {
 
     function testFailDoubleClaim(uint256 bonus) public {
         vm.assume(bonus < 100 ether);
-        (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, block.timestamp, bonus))));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
         vm.prank(bob);
         points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
         assertEq(TestToken(token).balanceOf(bob), bonus);
         points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
-    }
-
-    // -- HELPERS
-
-    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 result) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(0x20, hash) // Store into scratch space for keccak256.
-            mstore(0x00, "\x00\x00\x00\x00\x19Ethereum Signed Message:\n32") // 28 bytes.
-            result := keccak256(0x04, 0x3c) // `32 * 2 - (32 - 28) = 60 = 0x3c`.
-        }
     }
 }
 
