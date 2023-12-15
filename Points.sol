@@ -33,7 +33,9 @@ contract Points {
     }
 
     function claim(IERC20 token, uint256 start, uint256 bonus, bytes calldata signature) public payable {
-        token.transfer(msg.sender, claimed[msg.sender] += check(msg.sender, start, bonus, signature));
+        unchecked {
+            token.transfer(msg.sender, claimed[msg.sender] += check(msg.sender, start, bonus, signature));
+        }
     }
 }
 
