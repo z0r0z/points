@@ -27,8 +27,8 @@ contract Points {
             v := byte(0, calldataload(add(signature.offset, 0x40)))
         }
         if (
-            ecrecover(hash, v, r, s) == owner
-                || IERC1271(owner).isValidSignature(hash, signature) == IERC1271.isValidSignature.selector
+            owner == ecrecover(hash, v, r, s)
+                || IERC1271.isValidSignature.selector == IERC1271(owner).isValidSignature(hash, signature)
         ) score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
     }
 

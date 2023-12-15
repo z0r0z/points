@@ -1,4 +1,4 @@
-PointsTest:testCheck(uint216) (runs: 256, μ: 21700, ~: 21700)
-PointsTest:testClaim(uint216) (runs: 256, μ: 78030, ~: 78030)
-PointsTest:testFailDoubleClaim(uint216) (runs: 256, μ: 23946, ~: 23946)
+PointsTest:testCheck(uint216) (runs: 256, μ: 21697, ~: 21697)
+PointsTest:testClaim(uint216) (runs: 256, μ: 78027, ~: 78027)
+PointsTest:testFailDoubleClaim(uint216) (runs: 256, μ: 23937, ~: 23937)
 PointsTest:testOwner() (gas: 7658)
