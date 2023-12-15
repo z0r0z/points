@@ -28,13 +28,19 @@ contract Points {
         }
         if (
             owner == ecrecover(hash, v, r, s)
-                || IERC1271.isValidSignature.selector == IERC1271(owner).isValidSignature(hash, signature)
+                || IERC1271.isValidSignature.selector
+                    == IERC1271(owner).isValidSignature(hash, signature)
         ) score = (bonus + (rate * (block.timestamp - start))) - claimed[user];
     }
 
-    function claim(IERC20 token, uint40 start, uint216 bonus, bytes calldata signature) public payable {
+    function claim(IERC20 token, uint40 start, uint216 bonus, bytes calldata signature)
+        public
+        payable
+    {
         unchecked {
-            token.transfer(msg.sender, claimed[msg.sender] += check(msg.sender, start, bonus, signature));
+            token.transfer(
+                msg.sender, claimed[msg.sender] += check(msg.sender, start, bonus, signature)
+            );
         }
     }
 }
