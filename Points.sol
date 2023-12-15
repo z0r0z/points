@@ -11,7 +11,7 @@ contract Points {
         RATE = rate;
     }
 
-    function check(address user, uint48 start, uint208 bonus, bytes calldata signature)
+    function check(address user, uint256 start, uint256 bonus, bytes calldata signature)
         public
         view
         returns (uint256 score)
@@ -33,7 +33,7 @@ contract Points {
         ) score = (bonus + (RATE * (block.timestamp - start))) - claimed[user];
     }
 
-    function claim(IERC20 token, uint48 start, uint208 bonus, bytes calldata signature)
+    function claim(IERC20 token, uint256 start, uint256 bonus, bytes calldata signature)
         public
         payable
     {
