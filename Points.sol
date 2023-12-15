@@ -3,15 +3,21 @@ pragma solidity ^0.8.19;
 
 contract Points {
     address public immutable owner; // Signatory.
+    uint256 public immutable rate; // Issuance.
     mapping(address => uint256) public claimed;
 
-    constructor(address _owner) payable {
+    constructor(address _owner, uint256 _rate) payable {
         owner = _owner;
+        rate = _rate;
     }
 
-    function check(address user, uint256 score, bytes calldata signature) public view returns (uint256) {
-        // Hash user's points score and parse owner's signature.
-        bytes32 hash = keccak256((abi.encodePacked(user, score)));
+    function check(address user, uint256 start, uint256 bonus, bytes calldata signature)
+        public
+        view
+        returns (uint256 score)
+    {
+        // Hash user's points start with bonus and parse owner's signature.
+        bytes32 hash = keccak256((abi.encodePacked(user, start, bonus)));
         bytes32 r;
         bytes32 s;
         uint8 v;
@@ -25,18 +31,18 @@ contract Points {
         }
         // Try recovering signature from owner.
         if (ecrecover(hash, v, r, s) == owner) {
-            return score - claimed[user];
+            score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
         } else if (IERC1271(owner).isValidSignature(hash, signature) == IERC1271.isValidSignature.selector) {
-            return score - claimed[user];
+            score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
         } else {
-            return 0; // Failed to recover.
+            score = 0; // Failed to recover.
         }
     }
 
-    function claim(IERC20 token, uint256 score, bytes calldata signature) public payable {
-        token.transfer(msg.sender, check(msg.sender, score, signature));
+    function claim(IERC20 token, uint256 start, uint256 bonus, bytes calldata signature) public payable {
+        token.transfer(msg.sender, check(msg.sender, start, bonus, signature));
         unchecked {
-            claimed[msg.sender] += score;
+            claimed[msg.sender] += bonus;
         }
     }
 }

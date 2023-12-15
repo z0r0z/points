@@ -14,7 +14,7 @@ contract PointsTest is Test {
     function setUp() public {
         (alice, alicePk) = makeAddrAndKey("alice");
         bob = makeAddr("bob");
-        points = new Points(alice); // Deploy.
+        points = new Points(alice, 0); // Deploy.
         token = address(new TestToken(address(points), 100 ether));
     }
 
@@ -24,30 +24,30 @@ contract PointsTest is Test {
         assertEq(points.owner(), alice);
     }
 
-    function testCheck(uint256 score) public {
+    function testCheck(uint256 bonus) public {
         (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, score))));
-        uint256 bal = points.check(bob, score, abi.encodePacked(r, s, v));
-        assertEq(bal, score);
+            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, block.timestamp, bonus))));
+        uint256 bal = points.check(bob, block.timestamp, bonus, abi.encodePacked(r, s, v));
+        assertEq(bal, bonus);
     }
 
-    function testClaim(uint256 score) public {
-        vm.assume(score < 100 ether);
+    function testClaim(uint256 bonus) public {
+        vm.assume(bonus < 100 ether);
         (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, score))));
+            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, block.timestamp, bonus))));
         vm.prank(bob);
-        points.claim(IERC20(token), score, abi.encodePacked(r, s, v));
-        assertEq(TestToken(token).balanceOf(bob), score);
+        points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
+        assertEq(TestToken(token).balanceOf(bob), bonus);
     }
 
-    function testFailDoubleClaim(uint256 score) public {
-        vm.assume(score < 100 ether);
+    function testFailDoubleClaim(uint256 bonus) public {
+        vm.assume(bonus < 100 ether);
         (uint8 v, bytes32 r, bytes32 s) =
-            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, score))));
+            vm.sign(alicePk, toEthSignedMessageHash(keccak256(abi.encodePacked(bob, block.timestamp, bonus))));
         vm.prank(bob);
-        points.claim(IERC20(token), score, abi.encodePacked(r, s, v));
-        assertEq(TestToken(token).balanceOf(bob), score);
-        points.claim(IERC20(token), score, abi.encodePacked(r, s, v));
+        points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
+        assertEq(TestToken(token).balanceOf(bob), bonus);
+        points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
     }
 
     // -- HELPERS
