@@ -14,7 +14,7 @@ contract PointsTest is Test {
     function setUp() public {
         (alice, alicePk) = makeAddrAndKey("alice");
         bob = makeAddr("bob");
-        points = new Points(alice, 0); // Deploy.
+        points = new Points(alice, 1); // Deploy. 1 token per second.
         token = address(new TestToken(address(points), 100 ether));
     }
 
@@ -24,27 +24,32 @@ contract PointsTest is Test {
         assertEq(points.owner(), alice);
     }
 
-    function testCheck(uint256 bonus) public {
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
-        uint256 bal = points.check(bob, block.timestamp, bonus, abi.encodePacked(r, s, v));
-        assertEq(bal, bonus);
+    function testCheck(uint216 bonus) public {
+        vm.assume(bonus < 100 ether);
+        uint40 start = uint40(block.timestamp);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, start, bonus)));
+        vm.warp(42);
+        uint256 bal = points.check(bob, start, bonus, abi.encodePacked(r, s, v));
+        assertEq(bal, bonus + 41);
     }
 
-    function testClaim(uint256 bonus) public {
+    function testClaim(uint216 bonus) public {
+        vm.assume(bonus < 100 ether);
+        uint40 start = uint40(block.timestamp);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, start, bonus)));
+        vm.warp(42);
+        vm.prank(bob);
+        points.claim(IERC20(token), start, bonus, abi.encodePacked(r, s, v));
+        assertEq(TestToken(token).balanceOf(bob), bonus + 41);
+    }
+
+    function testFailDoubleClaim(uint216 bonus) public {
         vm.assume(bonus < 100 ether);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
         vm.prank(bob);
-        points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
+        points.claim(IERC20(token), uint40(block.timestamp), bonus, abi.encodePacked(r, s, v));
         assertEq(TestToken(token).balanceOf(bob), bonus);
-    }
-
-    function testFailDoubleClaim(uint256 bonus) public {
-        vm.assume(bonus < 100 ether);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
-        vm.prank(bob);
-        points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
-        assertEq(TestToken(token).balanceOf(bob), bonus);
-        points.claim(IERC20(token), block.timestamp, bonus, abi.encodePacked(r, s, v));
+        points.claim(IERC20(token), uint40(block.timestamp), bonus, abi.encodePacked(r, s, v));
     }
 }
 

@@ -11,7 +11,7 @@ contract Points {
         rate = _rate;
     }
 
-    function check(address user, uint256 start, uint256 bonus, bytes calldata signature)
+    function check(address user, uint40 start, uint216 bonus, bytes calldata signature)
         public
         view
         returns (uint256 score)
@@ -32,7 +32,7 @@ contract Points {
         ) score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
     }
 
-    function claim(IERC20 token, uint256 start, uint256 bonus, bytes calldata signature) public payable {
+    function claim(IERC20 token, uint40 start, uint216 bonus, bytes calldata signature) public payable {
         unchecked {
             token.transfer(msg.sender, claimed[msg.sender] += check(msg.sender, start, bonus, signature));
         }
