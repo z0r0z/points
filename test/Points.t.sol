@@ -24,9 +24,9 @@ contract PointsTest is Test {
         new Points(alice, 1);
     }
 
-    function testCheck(uint216 bonus) public {
+    function testCheck(uint208 bonus) public {
         vm.assume(bonus < 100 ether);
-        uint40 start = uint40(block.timestamp);
+        uint48 start = uint48(block.timestamp);
         (uint8 v, bytes32 r, bytes32 s) =
             vm.sign(alicePk, keccak256(abi.encodePacked(bob, start, bonus)));
         vm.warp(42);
@@ -34,9 +34,9 @@ contract PointsTest is Test {
         assertEq(bal, bonus + 41);
     }
 
-    function testClaim(uint216 bonus) public {
+    function testClaim(uint208 bonus) public {
         vm.assume(bonus < 100 ether);
-        uint40 start = uint40(block.timestamp);
+        uint48 start = uint48(block.timestamp);
         (uint8 v, bytes32 r, bytes32 s) =
             vm.sign(alicePk, keccak256(abi.encodePacked(bob, start, bonus)));
         vm.warp(42);
@@ -45,14 +45,14 @@ contract PointsTest is Test {
         assertEq(TestToken(token).balanceOf(bob), bonus + 41);
     }
 
-    function testFailDoubleClaim(uint216 bonus) public {
+    function testFailDoubleClaim(uint208 bonus) public {
         vm.assume(bonus < 100 ether);
         (uint8 v, bytes32 r, bytes32 s) =
             vm.sign(alicePk, keccak256(abi.encodePacked(bob, block.timestamp, bonus)));
         vm.prank(bob);
-        points.claim(IERC20(token), uint40(block.timestamp), bonus, abi.encodePacked(r, s, v));
+        points.claim(IERC20(token), uint48(block.timestamp), bonus, abi.encodePacked(r, s, v));
         assertEq(TestToken(token).balanceOf(bob), bonus);
-        points.claim(IERC20(token), uint40(block.timestamp), bonus, abi.encodePacked(r, s, v));
+        points.claim(IERC20(token), uint48(block.timestamp), bonus, abi.encodePacked(r, s, v));
     }
 }
 

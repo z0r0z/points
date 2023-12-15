@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 contract Points {
-    address immutable OWNER; // Signatory.
-    uint256 immutable RATE; // Issuance.
+    address internal immutable OWNER; // Signatory.
+    uint256 internal immutable RATE; // Issuance.
     mapping(address => uint256) public claimed;
 
     constructor(address owner, uint8 rate) payable {
@@ -11,7 +11,7 @@ contract Points {
         RATE = rate;
     }
 
-    function check(address user, uint40 start, uint216 bonus, bytes calldata signature)
+    function check(address user, uint48 start, uint208 bonus, bytes calldata signature)
         public
         view
         returns (uint256 score)
@@ -33,7 +33,7 @@ contract Points {
         ) score = (bonus + (RATE * (block.timestamp - start))) - claimed[user];
     }
 
-    function claim(IERC20 token, uint40 start, uint216 bonus, bytes calldata signature)
+    function claim(IERC20 token, uint48 start, uint208 bonus, bytes calldata signature)
         public
         payable
     {

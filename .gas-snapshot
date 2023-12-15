@@ -1,4 +1,4 @@
-PointsTest:testCheck(uint216) (runs: 256, μ: 21374, ~: 21374)
-PointsTest:testClaim(uint216) (runs: 256, μ: 77215, ~: 77215)
+PointsTest:testCheck(uint208) (runs: 256, μ: 21264, ~: 21264)
+PointsTest:testClaim(uint208) (runs: 256, μ: 77149, ~: 77149)
 PointsTest:testDeploy() (gas: 417364)
-PointsTest:testFailDoubleClaim(uint216) (runs: 256, μ: 23605, ~: 23605)
+PointsTest:testFailDoubleClaim(uint208) (runs: 256, μ: 23561, ~: 23561)
