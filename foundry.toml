@@ -1,6 +1,7 @@
 [profile.default]
 solc_version = "0.8.19"
 
+via_ir = true
 optimizer = true
 optimizer_runs = 9_999_999
 
@@ -9,9 +10,6 @@ runs = 256
 
 [fmt]
 line_length = 100
-
-[profile.via-ir]
-via_ir = true
 
 [rpc_endpoints]
 main = "https://rpc.ankr.com/eth"
