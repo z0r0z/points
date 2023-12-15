@@ -58,6 +58,17 @@ contract PointsTest is Test {
         assertEq(TestToken(token).balanceOf(bob), bonus);
         points.claim(IERC20(token), start, bonus, abi.encodePacked(r, s, v));
     }
+
+    function testWithSCAOwner(uint256 bonus) public {
+        vm.assume(bonus < POT);
+        Points tp = new Points(address(new TestSmartAccount(alice)), 1);
+        uint256 start = 1;
+        (uint8 v, bytes32 r, bytes32 s) =
+            vm.sign(alicePk, keccak256(abi.encodePacked(bob, start, bonus)));
+        vm.warp(42);
+        uint256 bal = tp.check(bob, start, bonus, abi.encodePacked(r, s, v));
+        assertEq(bal, bonus + 41);
+    }
 }
 
 contract TestToken {
@@ -88,5 +99,30 @@ contract TestToken {
         }
         emit Transfer(msg.sender, to, amount);
         return true;
+    }
+}
+
+contract TestSmartAccount {
+    address internal immutable OWNER;
+
+    constructor(address owner) payable {
+        OWNER = owner;
+    }
+
+    function isValidSignature(bytes32 hash, bytes calldata signature)
+        public
+        view
+        returns (bytes4)
+    {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+        assembly ("memory-safe") {
+            r := calldataload(signature.offset)
+            s := calldataload(add(signature.offset, 0x20))
+            v := byte(0, calldataload(add(signature.offset, 0x40)))
+        }
+        if (OWNER == ecrecover(hash, v, r, s)) return this.isValidSignature.selector;
+        else revert("ECDSA_ERROR");
     }
 }
