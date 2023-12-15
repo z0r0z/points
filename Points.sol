@@ -29,7 +29,7 @@ contract Points {
         if (
             owner == ecrecover(hash, v, r, s)
                 || IERC1271.isValidSignature.selector == IERC1271(owner).isValidSignature(hash, signature)
-        ) score = (((block.timestamp - start) * rate) + bonus) - claimed[user];
+        ) score = ((rate * (block.timestamp - start)) + bonus) - claimed[user];
     }
 
     function claim(IERC20 token, uint40 start, uint216 bonus, bytes calldata signature) public payable {
